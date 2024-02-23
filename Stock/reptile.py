@@ -22,16 +22,3 @@ def getUpDown():
 def getPercentage():
     return getUrl()[1].xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[3]/text()')
 
-if getUrl()[0].status_code == 200:    
-    if  getName():
-        price = getPrice()[0].strip()
-        name = getName()[0].strip()
-        up = getUpDown()[0].strip()
-        percent = getPercentage()[0].strip()[1:-1]
-        print(name + '股價：', price)
-        print('漲跌:', up)
-        print('漲跌幅:', percent)
-    else:
-        print('無法找到此股。')
-else:
-    print('404 Error!!!。')
