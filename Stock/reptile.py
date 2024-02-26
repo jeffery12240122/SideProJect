@@ -1,8 +1,6 @@
 import requests
 from lxml import html
-def stockNum():
-    stock_num = (input("請輸入股價代碼:"))
-    return stock_num
+
 def getUrl(stock_num):
     url = 'https://tw.stock.yahoo.com/q/q?s='+stock_num
     # 發送 GET 請求並獲取內容
@@ -20,19 +18,32 @@ def getName(tree):
 
 
 def getUpDown(tree):
-    return float(tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[2]/text()')[0].strip())
+    if upDown(tree) == 2:
+        return 0 + float(tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[2]/text()')[0].strip())    
+    elif upDown(tree) == 3:
+        return 0 - float(tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[2]/text()')[0].strip())
+    else:
+        return float(tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[2]/text()')[0].strip())
 
 def getPercentage(tree):
-
     percentage = tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[3]/text()')
-    updown = tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[2]/span/@style')
-    if '#ff333a' in updown:
+    if upDown(tree) == 2:
         return float(0) + float(percentage[0].replace('%', '')[1:-1])
-    elif '#00ab5e' in updown:
+    elif upDown(tree) == 3:
         return float(0) - float(percentage[0].replace('%', '')[1:-1])
     else:
         return float(percentage[0].replace('%', '')[1:-1])
 
+def upDown(tree):
+     up = tree.xpath('//*[@id="main-0-QuoteHeader-Proxy"]/div/div[2]/div[1]/div/span[2]/span/@style')
+     if up == []:
+         return 1
+     elif '#ff333a' in up[0]:
+         return 2
+     elif '#00ab5e' in up[0]:
+         return 3
+
     
+     
 
 
