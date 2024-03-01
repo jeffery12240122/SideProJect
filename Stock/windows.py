@@ -33,3 +33,5 @@ def update_text(stock_code_entry, result_label):
     text1 = '漲跌:'+ str(reptile.getUpDown(tree)) + ' '
     text2 = '漲跌幅:' + str(reptile.getPercentage(tree))
     result_label.config(text=text + text1 + text2)
+
+create_window()
