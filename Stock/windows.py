@@ -5,7 +5,7 @@ def create_window():
     root = tk.Tk()
 
     # 設定視窗標題
-    root.title("在視窗中新增輸入欄位")
+    root.title("股票查詢")
 
     # 設定視窗大小
     root.geometry("300x200")
