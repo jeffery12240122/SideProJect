@@ -22,11 +22,12 @@ class ReservationSystem:
 
         self.date_combobox = ttk.Combobox(root, values=self.generate_dates())
         self.date_combobox.pack(pady=5)
+        self.date_combobox.bind("<<ComboboxSelected>>", self.update_time_combobox)
 
         self.time_label = tk.Label(root, text="Time")
         self.time_label.pack(pady=10)
 
-        self.time_combobox = ttk.Combobox(root, values=self.generate_times())
+        self.time_combobox = ttk.Combobox(root)
         self.time_combobox.pack(pady=5)
 
         self.create_button = tk.Button(root, text="Preserve", command=self.create_reservation)
@@ -35,12 +36,30 @@ class ReservationSystem:
         self.view_button = tk.Button(root, text="View all preserve", command=self.open_view_window)
         self.view_button.pack(pady=10)
 
+        # Initialize time combobox
+        self.update_time_combobox()
+
     def generate_dates(self):
         today = datetime.today()
         return [(today + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(30)]
 
-    def generate_times(self):
-        return [f"{hour:02d}:00" for hour in range(24)]
+    def generate_times(self, selected_date=None):
+        all_times = [f"{hour:02d}:00" for hour in range(24)]
+        if selected_date:
+            reserved_times = [
+                datetime_str.split()[1] for datetime_str in self.reservations
+                if datetime_str.startswith(selected_date)
+            ]
+            available_times = [time for time in all_times if time not in reserved_times]
+            return available_times
+        return all_times
+
+    def update_time_combobox(self, event=None):
+        selected_date = self.date_combobox.get()
+        available_times = self.generate_times(selected_date)
+        self.time_combobox['values'] = available_times
+        if available_times:
+            self.time_combobox.current(0)
 
     def load_reservations(self):
         try:
@@ -68,8 +87,8 @@ class ReservationSystem:
         else:
             self.reservations[datetime_str] = name
             messagebox.showinfo("Success", f"Reservation made for {name} at {datetime_str}.")
-
-        self.save_reservations()
+            self.save_reservations()
+            self.update_time_combobox()
 
     def open_view_window(self):
         view_window = tk.Toplevel(self.root)
@@ -81,10 +100,10 @@ class ReservationSystem:
         tree.heading("Name", text="Name")
         tree.heading("Date", text="Date")
         tree.heading("Time", text="Time")
-        tree.column("#0", width = 60)
-        tree.column("Name", width = 210)
-        tree.column("Date", width = 150)
-        tree.column("Time", width = 80)
+        tree.column("#0", width=60)
+        tree.column("Name", width=210)
+        tree.column("Date", width=150)
+        tree.column("Time", width=80)
         tree.pack(expand=True, fill="both")
 
         sorted_reservations = sorted(self.reservations.items(), key=lambda x: datetime.strptime(x[0], "%Y-%m-%d %H:%M"))
@@ -114,9 +133,9 @@ class ReservationSystem:
                 del self.reservations[datetime_str]
                 messagebox.showinfo("Success", f"Reservation at {datetime_str} has been deleted.")
                 self.save_reservations()
+                self.update_time_combobox()
             else:
                 messagebox.showwarning("Deletion Error", f"No reservation found at {datetime_str}.")
-
 
 if __name__ == "__main__":
     root = tk.Tk()
