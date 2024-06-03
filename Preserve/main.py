@@ -4,12 +4,14 @@ from tkinter import ttk
 from datetime import datetime, timedelta
 import re
 import os
+from PIL import Image, ImageTk  # Ensure you have Pillow installed: pip install pillow
 
 class ReservationSystem:
     def __init__(self, root):
         self.root = root
         self.root.title("Reservation System")
-        self.root.geometry("500x500")
+        self.root.geometry("500x600")
+        self.root.configure(bg="#f2f2f2")
 
         self.users = self.load_users()
         self.current_user = None
@@ -20,74 +22,91 @@ class ReservationSystem:
     def show_login_screen(self):
         self.clear_screen()
 
-        self.username_label = tk.Label(self.root, text="Username")
+        self.logo_image = Image.open("C:\\Users\\jefferyl\\work\\SideProJect\\LOGO.PNG")  
+        self.logo_image = self.logo_image.resize((100, 100), Image.LANCZOS)
+        self.logo_image = self.logo_image.convert("RGBA")
+
+        self.transparent_logo = Image.new('RGBA', self.logo_image.size, (255, 255, 255, 0))
+        width, height = self.logo_image.size
+        transparent_area = 100
+        for x in range(width):
+            for y in range(height):
+                r, g, b, alpha = self.logo_image.getpixel((x, y))
+                self.transparent_logo.putpixel((x, y), (r, g, b, int(alpha * transparent_area / 100)))
+
+        self.logo_photo = ImageTk.PhotoImage(self.transparent_logo)
+        self.logo_label = tk.Label(self.root, image=self.logo_photo, bg="#f2f2f2")
+        self.logo_label.pack(pady=10)
+
+        self.username_label = tk.Label(self.root, text="Username", bg="#f2f2f2", font=("Helvetica", 12))
         self.username_label.pack(pady=10)
 
-        self.username_entry = tk.Entry(self.root)
+        self.username_entry = tk.Entry(self.root, font=("Helvetica", 12))
         self.username_entry.pack(pady=5)
 
-        self.password_label = tk.Label(self.root, text="Password")
+        self.password_label = tk.Label(self.root, text="Password", bg="#f2f2f2", font=("Helvetica", 12))
         self.password_label.pack(pady=10)
 
-        self.password_entry = tk.Entry(self.root, show="*")
+        self.password_entry = tk.Entry(self.root, show="*", font=("Helvetica", 12))
         self.password_entry.pack(pady=5)
 
-        self.login_button = tk.Button(self.root, text="Login", command=self.login)
+        self.login_button = tk.Button(self.root, text="Login", command=self.login, bg="#4CAF50", fg="white", font=("Helvetica", 12))
         self.login_button.pack(pady=10)
 
-        self.register_button = tk.Button(self.root, text="Register", command=self.show_register_screen)
+        self.register_button = tk.Button(self.root, text="Register", command=self.show_register_screen, bg="#008CBA", fg="white", font=("Helvetica", 12))
         self.register_button.pack(pady=10)
+
 
     def show_register_screen(self):
         self.clear_screen()
 
-        self.new_username_label = tk.Label(self.root, text="New Username")
+        self.new_username_label = tk.Label(self.root, text="New Username", bg="#f2f2f2", font=("Helvetica", 12))
         self.new_username_label.pack(pady=10)
 
-        self.new_username_entry = tk.Entry(self.root)
+        self.new_username_entry = tk.Entry(self.root, font=("Helvetica", 12))
         self.new_username_entry.pack(pady=5)
 
-        self.new_password_label = tk.Label(self.root, text="New Password")
+        self.new_password_label = tk.Label(self.root, text="New Password", bg="#f2f2f2", font=("Helvetica", 12))
         self.new_password_label.pack(pady=10)
 
-        self.new_password_entry = tk.Entry(self.root, show="*")
+        self.new_password_entry = tk.Entry(self.root, show="*", font=("Helvetica", 12))
         self.new_password_entry.pack(pady=5)
 
-        self.register_button = tk.Button(self.root, text="Register", command=self.register)
+        self.register_button = tk.Button(self.root, text="Register", command=self.register, bg="#4CAF50", fg="white", font=("Helvetica", 12))
         self.register_button.pack(pady=10)
 
-        self.back_button = tk.Button(self.root, text="Back to Login", command=self.show_login_screen)
+        self.back_button = tk.Button(self.root, text="Back to Login", command=self.show_login_screen, bg="#008CBA", fg="white", font=("Helvetica", 12))
         self.back_button.pack(pady=10)
 
     def show_reservation_screen(self):
         self.clear_screen()
 
-        self.name_label = tk.Label(self.root, text="Name")
+        self.name_label = tk.Label(self.root, text="Name", bg="#f2f2f2", font=("Helvetica", 12))
         self.name_label.pack(pady=10)
 
-        self.name_entry = tk.Entry(self.root)
+        self.name_entry = tk.Entry(self.root, font=("Helvetica", 12))
         self.name_entry.pack(pady=5)
 
-        self.date_label = tk.Label(self.root, text="Date")
+        self.date_label = tk.Label(self.root, text="Date", bg="#f2f2f2", font=("Helvetica", 12))
         self.date_label.pack(pady=10)
 
-        self.date_combobox = ttk.Combobox(self.root, values=self.generate_dates())
+        self.date_combobox = ttk.Combobox(self.root, values=self.generate_dates(), font=("Helvetica", 12))
         self.date_combobox.pack(pady=5)
         self.date_combobox.bind("<<ComboboxSelected>>", self.update_time_combobox)
 
-        self.time_label = tk.Label(self.root, text="Time")
+        self.time_label = tk.Label(self.root, text="Time", bg="#f2f2f2", font=("Helvetica", 12))
         self.time_label.pack(pady=10)
 
-        self.time_combobox = ttk.Combobox(self.root)
+        self.time_combobox = ttk.Combobox(self.root, font=("Helvetica", 12))
         self.time_combobox.pack(pady=5)
 
-        self.create_button = tk.Button(self.root, text="Preserve", command=self.create_reservation)
+        self.create_button = tk.Button(self.root, text="Reserve", command=self.create_reservation, bg="#4CAF50", fg="white", font=("Helvetica", 12))
         self.create_button.pack(pady=10)
 
-        self.view_button = tk.Button(self.root, text="View all preserve", command=self.open_view_window)
+        self.view_button = tk.Button(self.root, text="View all reservations", command=self.open_view_window, bg="#008CBA", fg="white", font=("Helvetica", 12))
         self.view_button.pack(pady=10)
 
-        self.logout_button = tk.Button(self.root, text="Logout", command=self.logout)
+        self.logout_button = tk.Button(self.root, text="Logout", command=self.logout, bg="#f44336", fg="white", font=("Helvetica", 12))
         self.logout_button.pack(pady=10)
 
         self.update_time_combobox()
@@ -240,7 +259,7 @@ class ReservationSystem:
                 self.delete_reservation(datetime_str)
                 view_window.destroy()
 
-        delete_button = tk.Button(view_window, text="Delete Selected", command=delete_selected)
+        delete_button = tk.Button(view_window, text="Delete Selected", command=delete_selected, bg="#f44336", fg="white", font=("Helvetica", 12))
         delete_button.pack(pady=10)
 
     def save_reservations(self):
